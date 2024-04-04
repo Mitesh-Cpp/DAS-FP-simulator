@@ -4,7 +4,7 @@ import random
 from bitarray import bitarray
 from bitarray.util import zeros
 
-class Block:
+class block:
     """This class represents a block in the Ethereum blockchain."""
 
     def __init__(self, blockSize):
@@ -84,5 +84,5 @@ class Block:
 """Testing code below"""
 
 # Testing code below
-blk = Block(64) 
-blk.print()
+# blk = Block(64) 
+# blk.print()
