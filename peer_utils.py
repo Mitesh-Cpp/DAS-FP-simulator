@@ -1,4 +1,5 @@
 from block import block
+from peer import peer
 import random
 
 def initiateBlock(isPublisher, blockSize, failureModel, failureRate, invalidTxnPresent):
@@ -25,3 +26,4 @@ def initiateBlock(isPublisher, blockSize, failureModel, failureRate, invalidTxnP
             return new_block
         else:
             raise ValueError("Unsupported failure model: {}".format(failureModel))
+        

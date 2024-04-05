@@ -14,6 +14,8 @@ bwupfull = 50000 # 50 Mbps
 bwdownfull = 200000 # 200 Mbps
 bwuplight = 10000 # 10 Mbps
 bwdownlight = 10000 # 10 Mbps
+blockSize = 32
+
 
 def generatePeerSet(totalPeers, lightPercent, HonestPercent):
     peersSet = [i for i in range(0, totalPeers)]
@@ -36,12 +38,15 @@ def main():
     # print(honestPercentSet)
 
     allPeers = [] 
+    lightAndHonest = []
 
     for peerId in peersSet:
         '''PeerId 0 would be block publisher'''
         isLight = peerId in lightPercentSet # interpret 0 as slow and 1 as fast
         isHonest = peerId in honestPercentSet  # interpret 0 as low and 1 as high
-        allPeers.append(peer(peerId, (peerId == 0), isLight, isHonest))
+        if isLight and isHonest:
+            lightAndHonest.append(peerId)
+        allPeers.append(peer(peerId, (peerId == 0), isLight, isHonest, blockSize))
         print("This is peer: ", peerId, "'s block")
         allPeers[-1].block.print()
     connect_graph(allPeers)
@@ -52,7 +57,23 @@ def main():
     #             print(peerId, " connected to ", nbr)
     #             break
 
-time_step = 0
+    time_step = 0
+    targetLightClient = random.choice(lightAndHonest)
+    globalChunksUnavailable = []
+    globalChunksUnavailable.append([i for i in range(blockSize*blockSize)])
+    # invalid block chunk will be always counted as unavailable
+    while not globalChunksUnavailable[-1] == [] or not allPeers[targetLightClient].fraudProofReceived:
+        if len(globalChunksUnavailable) >= 7 and globalChunksUnavailable[-7] == globalChunksUnavailable[-1]:
+            print("Unable to reconstruct the block, not available in the network..!! Exiting..!!")
+            break
+        for peerId in peersSet:
+            allPeers[peerId].getRequiredChunksFromNeighbours() # request random unavailable chunks from random neighbours
+        time_step += 1
+
+    if globalChunksUnavailable[-1] == []:
+        print("Block valid and available in ", time_step, " steps.")
+    if allPeers[targetLightClient].fraudProofReceived:
+        print("Light client (idx = ", targetLightClient, ") received fraud proof after ", time_step, " time steps.")
 
 
 if __name__ == "__main__":

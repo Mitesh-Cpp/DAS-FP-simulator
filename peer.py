@@ -16,3 +16,8 @@ class peer:
         self.block = initiateBlock(isPublisher, blockSize, failureModel, failureRate, invalidTxnPresent)
         self.blockChunksNeeded = [] if isPublisher else random.shuffle(list(range(blockSize * blockSize)))  # Create shuffled list
         self.blockChunksToSend = [] if not isPublisher else random.shuffle(list(range(blockSize * blockSize)))  # Create shuffled list
+        self.fraudProofReceived = False
+        self.numValidations = 2 if isLight else blockSize
+        self.validationQueue = [] # full node request missing chunks only after getting/validating random chunks which are present in their validation queue
+
+    def getRequiredChunksFromNeighbours():
