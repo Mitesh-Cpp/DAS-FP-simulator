@@ -27,3 +27,8 @@ def initiateBlock(isPublisher, blockSize, failureModel, failureRate, invalidTxnP
         else:
             raise ValueError("Unsupported failure model: {}".format(failureModel))
         
+def processQueues(peerId, allPeers, rowsUnavailable):
+    for nbr in allPeers[peerId].connected_nodes:
+        for row in allPeers[peerId].blockRowsToPropogate:
+            allPeers[nbr].blockRowsReceived.append(row)
+        allPeers[nbr].blockRowsNeeded -= blockRowsReceived

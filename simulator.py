@@ -59,18 +59,19 @@ def main():
 
     time_step = 0
     targetLightClient = random.choice(lightAndHonest)
-    globalChunksUnavailable = []
-    globalChunksUnavailable.append([i for i in range(blockSize*blockSize)])
+    globalRowsUnavailable = []
+    globalRowsUnavailable.append(set([i for i in range(blockSize)]))
     # invalid block chunk will be always counted as unavailable
-    while not globalChunksUnavailable[-1] == [] or not allPeers[targetLightClient].fraudProofReceived:
-        if len(globalChunksUnavailable) >= 7 and globalChunksUnavailable[-7] == globalChunksUnavailable[-1]:
+    while not globalRowsUnavailable[-1] == [] or not allPeers[targetLightClient].fraudProofReceived:
+        if len(globalRowsUnavailable) >= 7 and globalRowsUnavailable[-7] == globalRowsUnavailable[-1]:
             print("Unable to reconstruct the block, not available in the network..!! Exiting..!!")
             break
         for peerId in peersSet:
-            allPeers[peerId].getRequiredChunksFromNeighbours() # request random unavailable chunks from random neighbours
+            # full nodes will ask for all the rows and honest full nodes will propogate them as well in the network
+            processQueues(peerId, allPeers, globalRowsUnavailable)
         time_step += 1
 
-    if globalChunksUnavailable[-1] == []:
+    if globalRowsUnavailable[-1] == []:
         print("Block valid and available in ", time_step, " steps.")
     if allPeers[targetLightClient].fraudProofReceived:
         print("Light client (idx = ", targetLightClient, ") received fraud proof after ", time_step, " time steps.")
